@@ -1,54 +1,58 @@
 const days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
 
 function createCalendar(id, year, month) {
-    const currentMonth = month - 1;
-    const date = new Date(year, currentMonth);
-    const tableDiv = document.querySelector(`#${id}`);
-    const table = document.createElement("table");
-    let tr = document.createElement("tr");
+    const containerForTable = document.querySelector(`#${id}`);
+    const table = document.createElement('table');
+    const thead = createTableHead(days);
+    table.appendChild(thead);
+    const dataMonth = getDataMonth(year, month);
+    const tbody = createTableBody(dataMonth);
+    table.appendChild(tbody);
+    containerForTable.appendChild(table);
+}
 
+function getDataMonth(year, month) {
+    const currentMonth = month - 1;
+    const startDay = new Date(year, currentMonth).getDay();
+    const quantityDays = new Date(year, month, 0).getDate();
+    return {
+        startDay,
+        quantityDays
+    }
+}
+
+function createTableHead(days) {
+    const thead = document.createElement('thead');
+    const tr = document.createElement('tr');
     days.forEach((day) => {
-        const th = document.createElement("th");
+        const th = document.createElement('th');
         th.innerText = day;
         tr.appendChild(th);
     });
-    table.appendChild(tr);
+    return thead.appendChild(tr);
+}
 
-    tr = document.createElement("tr");
-    for (let i = 0; i < getDay(date); i++) {
-        tr.appendChild(document.createElement("td"));
+function createTableBody(dataMonth) {
+    const tbody = document.createElement('tbody');
+    let tr = document.createElement('tr');
+    for (let i = 1; i < dataMonth.startDay; i++) {
+        tr.appendChild(document.createElement('td'));
     }
-
-    while (date.getMonth() === currentMonth) {
-        const td = document.createElement("td");
-        td.innerHTML = date.getDate();
+    const position = dataMonth.startDay - 1;
+    for (let i = 1; i <= dataMonth.quantityDays; i++) {
+        const td = document.createElement('td');
+        td.textContent = `${i}`;
         tr.appendChild(td);
-
-        if (getDay(date) % 7 === 6) {
-            table.appendChild(tr);
-            tr = document.createElement("tr");
+        if ((i + position) % 7 === 0) {
+            tbody.appendChild(tr);
+            tr = document.createElement('tr');
         }
-
-        date.setDate(date.getDate() + 1);
     }
-
-    if (getDay(date) !== 0) {
-        for (let i = getDay(date); i < 7; i++) {
-            tr.appendChild(document.createElement("td"));
-        }
-        table.appendChild(tr);
+    for(let i = tr.childNodes.length +1; i <= 7; i++ ) {
+        tr.appendChild(document.createElement('td'));
     }
-
-    tableDiv.appendChild(table);
+    tbody.appendChild(tr);
+    return tbody;
 }
-
-function getDay(date) {
-    let day = date.getDay();
-    if (day === 0) {
-        day = 7;
-    }
-    return day - 1;
-}
-
-
 createCalendar('calendar', 2019, 5);
+
